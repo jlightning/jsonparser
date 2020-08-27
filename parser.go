@@ -892,6 +892,21 @@ func Get(data []byte, keys ...string) (value []byte, dataType ValueType, offset 
 	return a, b, d, e
 }
 
+type ParsedObject struct {
+	Value  []byte
+	Type   ValueType
+	Offset int
+}
+
+func GetAsObject(data []byte, keys ...string) ParsedObject {
+	a, b, _, d, _ := internalGet(data, keys...)
+	return ParsedObject{
+		Value:  a,
+		Type:   b,
+		Offset: d,
+	}
+}
+
 func internalGet(data []byte, keys ...string) (value []byte, dataType ValueType, offset, endOffset int, err error) {
 	if len(keys) > 0 {
 		if offset = searchKeys(data, keys...); offset == -1 {
@@ -930,7 +945,7 @@ func ArrayEach(data []byte, cb func(value []byte, dataType ValueType, offset int
 		return -1, MalformedJsonError
 	}
 
-	offset = nT+1
+	offset = nT + 1
 
 	if len(keys) > 0 {
 		if offset = searchKeys(data, keys...); offset == -1 {
@@ -1143,6 +1158,14 @@ func GetString(data []byte, keys ...string) (val string, err error) {
 	return ParseString(v)
 }
 
+func GetStringForce(data []byte, keys ...string) string {
+	v, err := GetString(data, keys...)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
 // GetFloat returns the value retrieved by `Get`, cast to a float64 if possible.
 // The offset is the same as in `Get`.
 // If key data type do not match, it will return an error.
@@ -1160,9 +1183,17 @@ func GetFloat(data []byte, keys ...string) (val float64, err error) {
 	return ParseFloat(v)
 }
 
+func GetFloatForce(data []byte, keys ...string) float64 {
+	v, err := GetFloat(data, keys...)
+	if err != nil {
+		panic(err)
+	}
+	return v
+}
+
 // GetInt returns the value retrieved by `Get`, cast to a int64 if possible.
 // If key data type do not match, it will return an error.
-func GetInt(data []byte, keys ...string) (val int64, err error) {
+func GetInt(data []byte, keys ...string) (val int, err error) {
 	v, t, _, e := Get(data, keys...)
 
 	if e != nil {
@@ -1173,7 +1204,16 @@ func GetInt(data []byte, keys ...string) (val int64, err error) {
 		return 0, fmt.Errorf("Value is not a number: %s", string(v))
 	}
 
-	return ParseInt(v)
+	res, err := ParseInt(v)
+	return int(res), err
+}
+
+func GetIntForce(data []byte, keys ...string) int {
+	v, err := GetInt(data, keys...)
+	if err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // GetBoolean returns the value retrieved by `Get`, cast to a bool if possible.
@@ -1191,6 +1231,14 @@ func GetBoolean(data []byte, keys ...string) (val bool, err error) {
 	}
 
 	return ParseBoolean(v)
+}
+
+func GetBooleanForce(data []byte, keys ...string) bool {
+	v, err := GetBoolean(data, keys...)
+	if err != nil {
+		panic(err)
+	}
+	return v
 }
 
 // ParseBoolean parses a Boolean ValueType into a Go bool (not particularly useful, but here for completeness)
