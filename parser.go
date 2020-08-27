@@ -935,7 +935,7 @@ func internalGet(data []byte, keys ...string) (value []byte, dataType ValueType,
 }
 
 // ArrayEach is used when iterating arrays, accepts a callback function with the same return arguments as `Get`.
-func ArrayEach(data []byte, cb func(value []byte, dataType ValueType, offset int, err error), keys ...string) (offset int, err error) {
+func ArrayEach(data []byte, cb func(idx int, value []byte, dataType ValueType, offset int, err error), keys ...string) (offset int, err error) {
 	if len(data) == 0 {
 		return -1, MalformedObjectError
 	}
@@ -978,6 +978,7 @@ func ArrayEach(data []byte, cb func(value []byte, dataType ValueType, offset int
 		return offset, nil
 	}
 
+	idx:=0
 	for true {
 		v, t, o, e := Get(data[offset:])
 
@@ -990,7 +991,7 @@ func ArrayEach(data []byte, cb func(value []byte, dataType ValueType, offset int
 		}
 
 		if t != NotExist {
-			cb(v, t, offset+o-len(v), e)
+			cb(idx, v, t, offset+o-len(v), e)
 		}
 
 		if e != nil {
@@ -1014,6 +1015,7 @@ func ArrayEach(data []byte, cb func(value []byte, dataType ValueType, offset int
 		}
 
 		offset++
+		idx++
 	}
 
 	return offset, nil
