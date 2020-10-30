@@ -6,7 +6,7 @@
 package benchmark
 
 import (
-	"github.com/buger/jsonparser"
+	"github.com/jlightning/jsonparser"
 	"testing"
 	// "github.com/Jeffail/gabs"
 	// "github.com/bitly/go-simplejson"
@@ -19,7 +19,7 @@ import (
 )
 
 /*
-   github.com/buger/jsonparser
+   github.com/jlightning/jsonparser
 */
 func BenchmarkJsonParserLarge(b *testing.B) {
 	for i := 0; i < b.N; i++ {
